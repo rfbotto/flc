@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, Transition } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 
 const HeadlessDropdown = () => (
     <Menu as="div">
