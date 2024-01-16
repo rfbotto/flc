@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from "react";
-import { Card, LineChart, Title } from "@tremor/react";
+import { Card, EventProps, LineChart, Title } from "@tremor/react";
 import chartData from "../data/chart-data-2";
 
 const LineChartInteractiveExample = () => {
-    const [value, setValue] = useState(null)
+    const [value, setValue] = useState<EventProps | null>(null)
 
     return (
         <Card>

@@ -1,4 +1,10 @@
-const CustomTooltip = ({ payload, active }) => {
+interface Category {
+    color: string;
+    dataKey: string;
+    value: string 
+}
+
+const CustomTooltip = (payload: Array<Category>, active: Boolean) => {
     if (!active || !payload) return null;
     return (
       <div className="w-56 rounded-tremor-default text-tremor-default bg-tremor-background p-2 shadow-tremor-dropdown border border-tremor-border">

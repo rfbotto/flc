@@ -16,7 +16,7 @@ export const BarChartCustomTooltip = () => {
           categories={["Revenue"]}
           colors={["#21a696"]}
           yAxisWidth={30}
-          customTooltip={CustomTooltip}
+          customTooltip={CustomTooltip as any}
         />
       </Card>
     </>
