@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-white px-4 w-full">
       <main className="flex flex-col items-center p-10 w-full">
         <h1 className="text-2xl font-bold mb-8">Chart Examples</h1>
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full max-w-xl">
           <ProgressChart />
           <BarChart />
           <LineChart />
