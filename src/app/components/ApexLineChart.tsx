@@ -8,9 +8,6 @@ const ApexLineChart = () => {
     const [state] = useState({
         options: {
             colors: ['#7700ee', '#21a696'],
-            stroke: {
-                curve: 'smooth'
-              },
             chart: {
                 id: 'revenue-line-chart',
             },
