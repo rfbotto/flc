@@ -63,7 +63,7 @@ const NivoBarChart = () => {
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
-                legend: 'revenue',
+                legend: 'Revenue',
                 legendPosition: 'middle',
                 legendOffset: -40,
                 truncateTickAt: 0

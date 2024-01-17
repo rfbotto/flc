@@ -31,7 +31,7 @@ const MyResponsiveLine = () => (
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
-                legend: 'revenue',
+                legend: 'Revenue',
                 legendOffset: -40,
                 legendPosition: 'middle'
             }}
