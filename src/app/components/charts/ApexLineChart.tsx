@@ -25,6 +25,9 @@ const ApexLineChart = () => {
             fill: {
                 colors: ['#7700ee', '#21a696'],
             },
+            stroke: {
+                width: 2
+            },
             tooltip: {
                 y: {
                     formatter: function (val: number) {
@@ -51,7 +54,7 @@ const ApexLineChart = () => {
               options={state.options}
               series={state.series}
               type="line"
-              width="500"
+              width="100%"
             />
         </Card>
     )

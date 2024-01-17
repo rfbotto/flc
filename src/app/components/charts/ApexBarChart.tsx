@@ -63,7 +63,7 @@ const ApexBarChart = () => {
               options={state.options}
               series={state.series}
               type="bar"
-              width="500"
+              width="100%"
             />
         </Card>
     )
