@@ -1,7 +1,6 @@
 'use client'
 
 import { Card } from "@tremor/react"
-import { useState } from "react"
 import Chart from "react-apexcharts"
 
 const ApexLineChart = () => {
@@ -16,7 +15,7 @@ const ApexLineChart = () => {
             },
             yaxis: {
                 title: {
-                    text: 'Revenue'
+                    text: 'Revenue [€]'
                 },
             },
             dataLabels: {
@@ -31,6 +30,7 @@ const ApexLineChart = () => {
             tooltip: {
                 y: {
                     formatter: function (val: number) {
+                    if (val === null) return null
                     return `${val}k`
                 }
               }
@@ -43,7 +43,7 @@ const ApexLineChart = () => {
         },
         {
             name: "2023",
-            data: [40, 50, 55, 60, 59, 70, 80, 101, 94]
+            data: [40, 50, 55, 60, 59, 70, 80, 101, 94, null, null, null]
             }
         ]
     }
@@ -51,7 +51,7 @@ const ApexLineChart = () => {
     return (
         <Card>
             <Chart
-              options={state.options}
+              options={state.options as any}
               series={state.series}
               type="line"
               width="100%"

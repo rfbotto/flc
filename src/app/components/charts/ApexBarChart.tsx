@@ -1,7 +1,6 @@
 'use client'
 
 import { Card } from "@tremor/react"
-import { useState } from "react"
 import Chart from "react-apexcharts"
 
 const ApexBarChart = () => {
@@ -16,7 +15,7 @@ const ApexBarChart = () => {
             },
             yaxis: {
                 title: {
-                    text: 'Revenue'
+                    text: 'Revenue [€]'
                 },
             },
             plotOptions: {
@@ -38,8 +37,11 @@ const ApexBarChart = () => {
                 colors: ['transparent']
               },
               tooltip: {
+                shared: true,
+                intersect: false,
                 y: {
                   formatter: function (val: number) {
+                    if (val === null) return null
                     return `${val}k`
                   }
                 }
@@ -52,7 +54,7 @@ const ApexBarChart = () => {
         },
         {
             name: "2023",
-            data: [40, 50, 55, 60, 59, 70, 80, 101, 94]
+            data: [40, 50, 55, 60, 59, 70, 80, 101, 94, null, null, null]
             }
         ]
     }
@@ -60,7 +62,7 @@ const ApexBarChart = () => {
     return (
         <Card>
             <Chart
-              options={state.options}
+              options={state.options as any}
               series={state.series}
               type="bar"
               width="100%"

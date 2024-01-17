@@ -1,7 +1,6 @@
 "use client"
 
 import { BarChart, Card, Title } from "@tremor/react";
-import CustomTooltip from "./TremorCustomTooltip";
 import chartData from "../../data/tremor-chart-data-2";
 import valueFormatter from "./value-formatter";
 
@@ -9,7 +8,7 @@ export const TremorBarChart = () => {
   return (
     <>
       <Card>
-        <Title>Revenue</Title>
+        <Title>Revenue [€]</Title>
         <BarChart
           className="h-72 mt-4"
           data={chartData}
@@ -18,7 +17,6 @@ export const TremorBarChart = () => {
           colors={["#7700ee", "#21a696"]}
           yAxisWidth={30}
           valueFormatter={valueFormatter}
-          customTooltip={CustomTooltip as any}
         />
       </Card>
     </>

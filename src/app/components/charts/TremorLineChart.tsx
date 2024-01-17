@@ -7,7 +7,7 @@ import valueFormatter from "./value-formatter";
 const TremorLineChart = () => {
     return (
         <Card>
-          <Title>Revenue</Title>
+          <Title>Revenue [€]</Title>
           <LineChart
             className="h-72 mt-4"
             data={chartData}
