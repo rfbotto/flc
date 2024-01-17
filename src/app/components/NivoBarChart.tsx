@@ -19,7 +19,7 @@ const NivoBarChart = () => {
             groupMode="grouped"
             valueScale={{ type: 'linear' }}
             indexScale={{ type: 'band', round: true }}
-            colors={{ scheme: 'nivo' }}
+            colors={['#21a696', '#7700ee']}
             defs={[
                 {
                     id: 'dots',
@@ -104,8 +104,6 @@ const NivoBarChart = () => {
                 }
             ]}
             role="application"
-            ariaLabel="Nivo bar chart demo"
-            barAriaLabel={e=>e.id+": "+e.formattedValue+" in country: "+e.indexValue}
         />
     </Card>
   )

@@ -3,6 +3,7 @@ import TremorBarChart from '../components/TremorBarChart';
 import TremorLineChart from '../components/TremorLineChart';
 import MyResponsiveLine from '../components/NivoLineChart';
 import NivoBarChart from '../components/NivoBarChart';
+import ApexBarChart from '../components/ApexBarChart';
 import ApexLineChart from '../components/ApexLineChart';
 
 
@@ -35,6 +36,7 @@ export default function Home() {
                     <h2 className='text-center text-xl'>Apex Charts - https://apexcharts.com/</h2>
                 </a>
                 <ApexLineChart />
+                <ApexBarChart />
             </div>
         </div>
       </main>

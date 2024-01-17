@@ -8,7 +8,7 @@ const MyResponsiveLine = () => (
     <Card className="h-72">
         <ResponsiveLine
             data={data}
-            colors={{ scheme: 'nivo' }}
+            colors={['#21a696', '#7700ee']}
             margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
             xScale={{ type: 'point' }}
             yScale={{

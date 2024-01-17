@@ -4,15 +4,12 @@ import { Card } from "@tremor/react"
 import { useState } from "react"
 import Chart from "react-apexcharts"
 
-const ApexLineChart = () => {
+const ApexBarChart = () => {
     const [state] = useState({
         options: {
             colors: ['#7700ee', '#21a696'],
-            stroke: {
-                curve: 'smooth'
-              },
             chart: {
-                id: 'revenue-line-chart',
+                id: 'revenue-bar-chart',
             },
             xaxis: {
                 categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"]
@@ -22,19 +19,31 @@ const ApexLineChart = () => {
                     text: 'Revenue'
                 },
             },
-            dataLabels: {
+            plotOptions: {
+                bar: {
+                  horizontal: false,
+                  columnWidth: '55%',
+                  endingShape: 'rounded'
+                },
+              },
+              dataLabels: {
                 enabled: false,
-            },
-            fill: {
+              },
+              fill: {
                 colors: ['#7700ee', '#21a696'],
-            },
-            tooltip: {
+              },
+              stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+              },
+              tooltip: {
                 y: {
-                    formatter: function (val: number) {
+                  formatter: function (val: number) {
                     return `${val}k`
+                  }
                 }
-              }
-            },
+              },
         },
         series: [
         {
@@ -53,11 +62,11 @@ const ApexLineChart = () => {
             <Chart
               options={state.options}
               series={state.series}
-              type="line"
+              type="bar"
               width="500"
             />
         </Card>
     )
 }
 
-export default ApexLineChart
+export default ApexBarChart
