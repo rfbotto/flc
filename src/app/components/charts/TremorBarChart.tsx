@@ -3,6 +3,7 @@
 import { BarChart, Card, Title } from "@tremor/react";
 import CustomTooltip from "./TremorCustomTooltip";
 import chartData from "../../data/tremor-chart-data-2";
+import valueFormatter from "./value-formatter";
 
 export const TremorBarChart = () => {
   return (
@@ -16,6 +17,7 @@ export const TremorBarChart = () => {
           categories={["2022", "2023"]}
           colors={["#7700ee", "#21a696"]}
           yAxisWidth={30}
+          valueFormatter={valueFormatter}
           customTooltip={CustomTooltip as any}
         />
       </Card>

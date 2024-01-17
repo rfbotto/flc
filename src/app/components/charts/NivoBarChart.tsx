@@ -19,7 +19,7 @@ const NivoBarChart = () => {
             groupMode="grouped"
             valueScale={{ type: 'linear' }}
             indexScale={{ type: 'band', round: true }}
-            colors={['#21a696', '#7700ee']}
+            colors={['#7700ee', '#21a696']}
             defs={[
                 {
                     id: 'dots',

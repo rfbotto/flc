@@ -2,6 +2,7 @@
 
 import { Card, LineChart, Title } from "@tremor/react";
 import chartData from "../../data/tremor-chart-data-2";
+import valueFormatter from "./value-formatter";
 
 const TremorLineChart = () => {
     return (
@@ -15,6 +16,7 @@ const TremorLineChart = () => {
             colors={["#7700ee", "#21a696"]}
             yAxisWidth={30}
             connectNulls={true}
+            valueFormatter={valueFormatter}
           />
         </Card>
     );
