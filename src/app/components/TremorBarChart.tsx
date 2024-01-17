@@ -1,8 +1,8 @@
 "use client"
 
 import { BarChart, Card, Title } from "@tremor/react";
-import CustomTooltip from "./CustomTooltip";
-import chartData from "../data/chart-data-1";
+import CustomTooltip from "./TremorCustomTooltip";
+import chartData from "../data/tremor-chart-data-2";
 
 export const BarChartCustomTooltip = () => {
   return (
@@ -13,8 +13,8 @@ export const BarChartCustomTooltip = () => {
           className="h-72 mt-4"
           data={chartData}
           index="date"
-          categories={["Revenue"]}
-          colors={["#21a696"]}
+          categories={["2022", "2023"]}
+          colors={["#7700ee", "#21a696"]}
           yAxisWidth={30}
           customTooltip={CustomTooltip as any}
         />

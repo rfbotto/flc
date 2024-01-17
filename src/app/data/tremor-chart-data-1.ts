@@ -1,50 +1,50 @@
 const chartData = [
     {
-      date: "Jan 23",
+      date: "Jan",
       Revenue: 82,
     },
     {
-      date: "Feb 23",
+      date: "Feb",
       Revenue: 64,
     },
     {
-      date: "Mar 23",
+      date: "Mar",
       Revenue: 60,
     },
     {
-      date: "Apr 23",
+      date: "Apr",
       Revenue: 70,
     },
     {
-      date: "May 23",
+      date: "May",
       Revenue: 65,
     },
     {
-      date: "Jun 23",
+      date: "Jun",
       Revenue: 50,
     },
     {
-      date: "Jul 23",
+      date: "Jul",
       Revenue: 45,
     },
     {
-      date: "Aug 23",
+      date: "Aug",
       Revenue: 60,
     },
     {
-      date: "Sep 23",
+      date: "Sep",
       Revenue: 70,
     },
     {
-      date: "Oct 23",
+      date: "Oct",
       Revenue: 80,
     },
     {
-      date: "Nov 23",
+      date: "Nov",
       Revenue: 72,
     },
     {
-      date: "Dez 23",
+      date: "Dez",
       Revenue: 60,
     },
   ]; 

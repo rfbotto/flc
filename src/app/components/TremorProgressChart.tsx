@@ -2,7 +2,7 @@ import { Card, Text, Metric, Flex, ProgressBar } from "@tremor/react";
 
 const ProgressChart = () => (
   <Card className="max-w-xs mx-auto">
-    <Text>Eversports Revenue</Text>
+    <Text>Eversports Revenue 2023</Text>
     <Metric>71,465€</Metric>
     <Flex className="mt-4">
       <Text>10% of annual target</Text>
