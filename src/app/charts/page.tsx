@@ -17,7 +17,7 @@ export default function Home() {
         <div className="flex flex-col gap-16 w-full max-w-xl">
             <div className='flex flex-col gap-4'>
                 <a href='https://www.tremor.so/'>
-                    <h2 className='text-center text-xl'>Tremor - https://www.tremor.so/</h2>
+                    <h2 className='text-center underline text-xl'>Tremor - https://www.tremor.so/</h2>
                 </a>
                 {/* <ProgressChart /> */}
                 <TremorLineChart />
@@ -25,7 +25,7 @@ export default function Home() {
             </div>
             <div className='flex flex-col gap-4'>
                 <a href='https://nivo.rocks/'>
-                    <h2 className='text-center text-xl'>Nivo - https://nivo.rocks/</h2>
+                    <h2 className='text-center underline text-xl'>Nivo - https://nivo.rocks/</h2>
                 </a>
                 <div className="h-72">
                     <MyResponsiveLine />
@@ -36,7 +36,7 @@ export default function Home() {
             </div>
             <div className='flex flex-col gap-4'>
                 <a href='https://apexcharts.com/'>
-                    <h2 className='text-center text-xl'>Apex Charts - https://apexcharts.com/</h2>
+                    <h2 className='text-center underline text-xl'>Apex Charts - https://apexcharts.com/</h2>
                 </a>
                 <ApexLineChart />
                 <ApexBarChart />
