@@ -1,7 +1,7 @@
 'use client'
 
 import { ResponsiveBar } from "@nivo/bar"
-import data from "../data/nivo-chart-data-2"
+import data from "../../data/nivo-chart-data-2"
 import { Card } from "@tremor/react"
 
 const NivoBarChart = () => {

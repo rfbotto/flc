@@ -1,10 +1,13 @@
-import ProgressChart from '../components/TremorProgressChart';
-import TremorBarChart from '../components/TremorBarChart';
-import TremorLineChart from '../components/TremorLineChart';
-import MyResponsiveLine from '../components/NivoLineChart';
-import NivoBarChart from '../components/NivoBarChart';
-import ApexBarChart from '../components/ApexBarChart';
-import ApexLineChart from '../components/ApexLineChart';
+import dynamic from 'next/dynamic';
+import ProgressChart from '../components/charts/TremorProgressChart';
+import TremorBarChart from '../components/charts/TremorBarChart';
+import TremorLineChart from '../components/charts/TremorLineChart';
+import MyResponsiveLine from '../components/charts/NivoLineChart';
+import NivoBarChart from '../components/charts/NivoBarChart';
+import LoadingChart from '../components/charts/LoadingChart';
+
+const ApexBarChart = dynamic(() => import('../components/charts/ApexBarChart'), { loading: () => <LoadingChart />, ssr: false })
+const ApexLineChart = dynamic(() => import('../components/charts/ApexLineChart'), { loading: () => <LoadingChart />, ssr: false })
 
 
 export default function Home() {

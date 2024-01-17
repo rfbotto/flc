@@ -1,7 +1,7 @@
 'use client'
 
 import { ResponsiveLine } from '@nivo/line'
-import data from '../data/nivo-chart-data-1'
+import data from '../../data/nivo-chart-data-1'
 import { Card } from '@tremor/react'
 
 const MyResponsiveLine = () => (

@@ -1,6 +1,6 @@
 import { Card, Text, Metric, Flex, ProgressBar } from "@tremor/react";
 
-const ProgressChart = () => (
+const TremorProgressChart = () => (
   <Card className="max-w-xs mx-auto">
     <Text>Eversports Revenue 2023</Text>
     <Metric>71,465€</Metric>
@@ -12,4 +12,4 @@ const ProgressChart = () => (
   </Card>
 )
 
-export default ProgressChart
+export default TremorProgressChart

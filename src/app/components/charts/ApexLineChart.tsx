@@ -4,12 +4,12 @@ import { Card } from "@tremor/react"
 import { useState } from "react"
 import Chart from "react-apexcharts"
 
-const ApexBarChart = () => {
-    const [state] = useState({
+const ApexLineChart = () => {
+    const state = {
         options: {
             colors: ['#7700ee', '#21a696'],
             chart: {
-                id: 'revenue-bar-chart',
+                id: 'revenue-line-chart',
             },
             xaxis: {
                 categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"]
@@ -19,31 +19,19 @@ const ApexBarChart = () => {
                     text: 'Revenue'
                 },
             },
-            plotOptions: {
-                bar: {
-                  horizontal: false,
-                  columnWidth: '55%',
-                  endingShape: 'rounded'
-                },
-              },
-              dataLabels: {
+            dataLabels: {
                 enabled: false,
-              },
-              fill: {
+            },
+            fill: {
                 colors: ['#7700ee', '#21a696'],
-              },
-              stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-              },
-              tooltip: {
+            },
+            tooltip: {
                 y: {
-                  formatter: function (val: number) {
+                    formatter: function (val: number) {
                     return `${val}k`
-                  }
                 }
-              },
+              }
+            },
         },
         series: [
         {
@@ -55,18 +43,18 @@ const ApexBarChart = () => {
             data: [40, 50, 55, 60, 59, 70, 80, 101, 94]
             }
         ]
-    })
+    }
 
     return (
         <Card>
             <Chart
               options={state.options}
               series={state.series}
-              type="bar"
+              type="line"
               width="500"
             />
         </Card>
     )
 }
 
-export default ApexBarChart
+export default ApexLineChart

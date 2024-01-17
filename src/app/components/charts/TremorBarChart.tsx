@@ -2,9 +2,9 @@
 
 import { BarChart, Card, Title } from "@tremor/react";
 import CustomTooltip from "./TremorCustomTooltip";
-import chartData from "../data/tremor-chart-data-2";
+import chartData from "../../data/tremor-chart-data-2";
 
-export const BarChartCustomTooltip = () => {
+export const TremorBarChart = () => {
   return (
     <>
       <Card>
@@ -23,4 +23,4 @@ export const BarChartCustomTooltip = () => {
   );
 }
 
-export default BarChartCustomTooltip
+export default TremorBarChart

@@ -4,7 +4,7 @@ interface Category {
     value: string 
 }
 
-const CustomTooltip = ({ payload, active }: {payload: Array<Category>; active: Boolean}) => {
+const TremorCustomTooltip = ({ payload, active }: {payload: Array<Category>; active: Boolean}) => {
     if (!active || !payload) return null;
     return (
       <div className="w-56 rounded-tremor-default text-tremor-default bg-tremor-background p-2 shadow-tremor-dropdown border border-tremor-border">
@@ -21,4 +21,4 @@ const CustomTooltip = ({ payload, active }: {payload: Array<Category>; active: B
     );
   }
 
-export default CustomTooltip
+export default TremorCustomTooltip
