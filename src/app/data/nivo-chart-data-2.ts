@@ -1,63 +1,63 @@
 const data = [
     {
-        "month": "jan",
+        "month": "Jan",
         "2022": 45,
         "2023": 82,
     },
     {
-        "month": "feb",
+        "month": "Feb",
         "2022": 52,
         "2023": 64,
     },
     {
-        "month": "mar",
+        "month": "Mar",
         "2022": 48,
         "2023": 60,
     },
     {
-        "month": "apr",
+        "month": "Apr",
         "2022": 61,
         "2023": 70,
     },
     {
-        "month": "may",
+        "month": "May",
         "2022": 70,
         "2023": 80,
     },
     {
-        "month": "jun",
+        "month": "Jun",
         "2022": 67,
         "2023": 50,
     },
     {
-        "month": "jul",
+        "month": "Jul",
         "2022": 60,
         "2023": 45,
     },
     {
-        "month": "aug",
+        "month": "Aug",
         "2022": 72,
         "2023": 60,
     },
     {
-        "month": "sep",
+        "month": "Sep",
         "2022": 65,
         "2023": 70,
     },
     {
-        "month": "oct",
+        "month": "Oct",
         "2022": 68,
-        "2023": null,
+        "2023": '',
     },
     {
-        "month": "nov",
+        "month": "Nov",
         "2022": 72,
-        "2023": null,
+        "2023": '',
     },
     {
-        "month": "dez",
+        "month": "Dez",
         "2022": 60,
-        "2023": null,
+        "2023": '',
     }
 ]
 
