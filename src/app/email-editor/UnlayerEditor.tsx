@@ -3,7 +3,7 @@
 import { Button } from '@tremor/react';
 import React, { useRef } from 'react';
 
-import EmailEditor, { EditorRef } from 'react-email-editor';
+import EmailEditor, { EditorRef  } from 'react-email-editor';
 
 export default function UnlayerEditor(){
   const emailEditorRef = useRef<EditorRef>(null);
@@ -20,7 +20,7 @@ export default function UnlayerEditor(){
   const saveDesign = () => {
     const unlayer = emailEditorRef.current?.editor;
 
-    unlayer?.saveDesign((design) => {
+    unlayer?.saveDesign((design: unknown) => {
       console.log('saveDesign', design);
     });
   };
