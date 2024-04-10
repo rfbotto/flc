@@ -5425,6 +5425,13 @@ react-dom@^18:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
+react-email-editor@1.7.9:
+  version "1.7.9"
+  resolved "https://registry.yarnpkg.com/react-email-editor/-/react-email-editor-1.7.9.tgz#54f01fca6a875a4aabe400e34a2c1966d73f731f"
+  integrity sha512-ALsGS1E/oAzgWDDbFFxJ8Y8QCx7ZJK46aEi/w7Ydgs62+83sQjwr0pTzyTapWZnACWTv3wCLDDFqateui1YYJQ==
+  dependencies:
+    unlayer-types latest
+
 react-fast-compare@3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.2.tgz#929a97a532304ce9fee4bcae44234f1ce2c21d49"
@@ -6140,6 +6147,11 @@ undici-types@~5.26.4:
   version "5.26.5"
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-5.26.5.tgz#bcd539893d00b56e964fd2657a4866b221a65617"
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
+
+unlayer-types@latest:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/unlayer-types/-/unlayer-types-1.9.0.tgz#623d275ead04d6cb7cd69605cf7194b9ab8a9a4e"
+  integrity sha512-Xu33psxX/hgI8qiQ+E08jv81UMDd3Inp5Cm4tJuz5qUW6OLf7P6sFYoiFYpdtpN70d9xomCfY9yZY0IGIsXM/A==
 
 update-browserslist-db@^1.0.13:
   version "1.0.13"
