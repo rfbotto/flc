@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import NestedLoadingComponent from "./NestedLoadingComponent";
 
-export default async function page({ children }: { children: React.ReactNode }) {
+export default async function page() {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     return (
         <div className="h-full flex justify-center items-center bg-purple-200">
