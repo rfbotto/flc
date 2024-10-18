@@ -1,13 +1,12 @@
 import dynamic from 'next/dynamic';
-import ProgressChart from '../components/charts/TremorProgressChart';
-import TremorBarChart from '../components/charts/TremorBarChart';
-import TremorLineChart from '../components/charts/TremorLineChart';
-import MyResponsiveLine from '../components/charts/NivoLineChart';
-import NivoBarChart from '../components/charts/NivoBarChart';
-import LoadingChart from '../components/charts/LoadingChart';
+import TremorBarChart from '../../components/charts/TremorBarChart';
+import TremorLineChart from '../../components/charts/TremorLineChart';
+import MyResponsiveLine from '../../components/charts/NivoLineChart';
+import NivoBarChart from '../../components/charts/NivoBarChart';
+import LoadingChart from '../../components/charts/LoadingChart';
 
-const ApexBarChart = dynamic(() => import('../components/charts/ApexBarChart'), { loading: () => <LoadingChart />, ssr: false })
-const ApexLineChart = dynamic(() => import('../components/charts/ApexLineChart'), { loading: () => <LoadingChart />, ssr: false })
+const ApexBarChart = dynamic(() => import('../../components/charts/ApexBarChart'), { loading: () => <LoadingChart />, ssr: false })
+const ApexLineChart = dynamic(() => import('../../components/charts/ApexLineChart'), { loading: () => <LoadingChart />, ssr: false })
 
 
 export default function Home() {
@@ -19,7 +18,6 @@ export default function Home() {
                 <a href='https://www.tremor.so/'>
                     <h2 className='text-center underline text-xl'>Tremor - https://www.tremor.so/</h2>
                 </a>
-                {/* <ProgressChart /> */}
                 <TremorLineChart />
                 <TremorBarChart />
             </div>

@@ -10,13 +10,13 @@ export default async function layout({ children }: { children: React.ReactNode }
                 <Link href="/loading-test" className="underline hover:cursor-pointer">
                     Home
                 </Link>
-                <Link href="/loading-test/delay-loading" className="underline hover:cursor-pointer">
+                <Link href="/loading-test/delay-loading" className="underline hover:cursor-pointer" prefetch={false}>
                     Delay loading
                 </Link>
-                <Link href="/loading-test/delay-loading-prefetch" className="underline hover:cursor-pointer" prefetch={true}>
+                <Link href="/loading-test/delay-loading-prefetch" className="underline hover:cursor-pointer" prefetch={false} >
                     Delay loading prefetch
                 </Link>
-                <Link href="/loading-test/normal-loading" className="underline hover:cursor-pointer">
+                <Link href="/loading-test/normal-loading" className="underline hover:cursor-pointer" prefetch={false}>
                     Normal loading
                 </Link>
             </div>

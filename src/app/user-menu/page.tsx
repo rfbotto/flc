@@ -1,7 +1,7 @@
-import RadixDropdown from '../components/user-menu/RadixDropdown';
-import HeadlessDropdown from '../components/user-menu/HeadlessDropdown';
-import ChakraDropdown from '../components/user-menu/ChakraDropdown';
-import ReactAriaDropdown from '../components/user-menu/ReactAriaDropdown';
+import RadixDropdown from '../../components/user-menu/RadixDropdown';
+import HeadlessDropdown from '../../components/user-menu/HeadlessDropdown';
+import ChakraDropdown from '../../components/user-menu/ChakraDropdown';
+import ReactAriaDropdown from '../../components/user-menu/ReactAriaDropdown';
 
 export default function Home() {
   return (
