@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic'
+
 export default async function layout({ children }: { children: React.ReactNode }) {
     return (
         <div className="w-screen h-screen border-4 border-pink-200">
