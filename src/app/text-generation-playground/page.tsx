@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import type { GuardrailsConfig } from "@/types/guardrails";
 
-interface GuardrailsConfig {
+interface EmailConfig {
   tone: string;
   length: string;
   includeCallToAction: boolean;
@@ -12,26 +13,55 @@ interface GuardrailsConfig {
 
 export default function PlaygroundPage() {
   const [userInput, setUserInput] = useState("");
-  const [guardrails, setGuardrails] = useState<GuardrailsConfig>({
+  const [emailConfig, setEmailConfig] = useState<EmailConfig>({
     tone: "professional",
     length: "medium",
     includeCallToAction: false,
     formalityLevel: "balanced",
     brandVoice: "",
   });
+
+  const [guardrailsEnabled, setGuardrailsEnabled] = useState(true);
+  const [guardrailsConfig, setGuardrailsConfig] = useState<GuardrailsConfig>({
+    enabledCategories: {
+      hate: true,
+      harassment: true,
+      selfHarm: true,
+      sexual: true,
+      violence: true,
+    },
+    thresholds: {
+      hate: 0.5,
+      harassment: 0.5,
+      selfHarm: 0.5,
+      sexual: 0.5,
+      violence: 0.5,
+    },
+    validators: {
+      checkProfanity: true,
+      checkPII: true,
+      checkStructure: true,
+      checkLength: true,
+      customRules: true,
+    },
+  });
+
   const [generatedEmail, setGeneratedEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<any>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
 
   const handleGenerate = async () => {
     if (!userInput.trim()) {
-      setError("Please enter an email description");
+      setError({
+        error: "Validation Error",
+        message: "Please enter an email description",
+      });
       return;
     }
 
     setIsLoading(true);
-    setError("");
+    setError(null);
     setGeneratedEmail("");
 
     try {
@@ -42,19 +72,24 @@ export default function PlaygroundPage() {
         },
         body: JSON.stringify({
           userInput,
-          guardrails,
+          emailConfig,
+          guardrailsConfig: guardrailsEnabled ? guardrailsConfig : undefined,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate email");
+        setError(data);
+        return;
       }
 
       setGeneratedEmail(data.generatedEmail);
     } catch (err: any) {
-      setError(err.message || "An error occurred while generating the email");
+      setError({
+        error: "Network Error",
+        message: err.message || "An error occurred while generating the email",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -66,29 +101,30 @@ export default function PlaygroundPage() {
       setShowCopyToast(true);
       setTimeout(() => setShowCopyToast(false), 2000);
     } catch (err) {
-      setError("Failed to copy to clipboard");
+      setError({ error: "Copy Error", message: "Failed to copy to clipboard" });
     }
   };
 
   const handleClear = () => {
     setGeneratedEmail("");
-    setError("");
+    setError(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
             AI Email Generation Playground
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Experimental tool for exploring AI-powered email generation
+            Experimental tool with advanced guardrails for exploring AI-powered
+            email generation
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          <div className="xl:col-span-7 space-y-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <label
                 htmlFor="email-description"
@@ -125,7 +161,7 @@ export default function PlaygroundPage() {
                       onClick={handleCopy}
                       className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-                      Copy to Clipboard
+                      Copy
                     </button>
                     <button
                       onClick={handleClear}
@@ -144,8 +180,47 @@ export default function PlaygroundPage() {
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                  <p className="text-sm text-red-800">{error}</p>
+                <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="h-5 w-5 text-red-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">
+                        {error.error}
+                      </h3>
+                      <p className="mt-1 text-sm text-red-700">
+                        {error.message}
+                      </p>
+                      {error.violations && (
+                        <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
+                          {error.violations.map(
+                            (violation: string, index: number) => (
+                              <li key={index}>{violation}</li>
+                            ),
+                          )}
+                        </ul>
+                      )}
+                      {error.stage && (
+                        <p className="mt-2 text-xs text-red-600">
+                          Blocked at:{" "}
+                          {error.stage === "input"
+                            ? "Input Filtering"
+                            : "Output Filtering"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -167,35 +242,29 @@ export default function PlaygroundPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+          <div className="xl:col-span-5 space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center gap-2 mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Experimental Guardrails
+                  Email Settings
                 </h2>
-                <span className="px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">
-                  Temporary
-                </span>
               </div>
-              <p className="text-xs text-gray-500 mb-6">
-                These controls are for team experimentation only
-              </p>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <label
                     htmlFor="tone"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
                     Tone
                   </label>
                   <select
                     id="tone"
-                    value={guardrails.tone}
+                    value={emailConfig.tone}
                     onChange={(e) =>
-                      setGuardrails({ ...guardrails, tone: e.target.value })
+                      setEmailConfig({ ...emailConfig, tone: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 text-sm"
                   >
                     <option value="professional">Professional</option>
                     <option value="friendly">Friendly</option>
@@ -206,64 +275,35 @@ export default function PlaygroundPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Length
                   </label>
                   <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="length"
-                        value="short"
-                        checked={guardrails.length === "short"}
-                        onChange={(e) =>
-                          setGuardrails({
-                            ...guardrails,
-                            length: e.target.value,
-                          })
-                        }
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        Short (~100 words)
-                      </span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="length"
-                        value="medium"
-                        checked={guardrails.length === "medium"}
-                        onChange={(e) =>
-                          setGuardrails({
-                            ...guardrails,
-                            length: e.target.value,
-                          })
-                        }
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        Medium (~200 words)
-                      </span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="length"
-                        value="long"
-                        checked={guardrails.length === "long"}
-                        onChange={(e) =>
-                          setGuardrails({
-                            ...guardrails,
-                            length: e.target.value,
-                          })
-                        }
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        Long (~300 words)
-                      </span>
-                    </label>
+                    {["short", "medium", "long"].map((len) => (
+                      <label key={len} className="flex items-center">
+                        <input
+                          type="radio"
+                          value={len}
+                          checked={emailConfig.length === len}
+                          onChange={(e) =>
+                            setEmailConfig({
+                              ...emailConfig,
+                              length: e.target.value,
+                            })
+                          }
+                          className="mr-2 text-blue-600"
+                        />
+                        <span className="text-sm text-gray-700 capitalize">
+                          {len} (~
+                          {len === "short"
+                            ? "100"
+                            : len === "medium"
+                              ? "200"
+                              : "300"}{" "}
+                          words)
+                        </span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -271,14 +311,14 @@ export default function PlaygroundPage() {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={guardrails.includeCallToAction}
+                      checked={emailConfig.includeCallToAction}
                       onChange={(e) =>
-                        setGuardrails({
-                          ...guardrails,
+                        setEmailConfig({
+                          ...emailConfig,
                           includeCallToAction: e.target.checked,
                         })
                       }
-                      className="mr-2 rounded text-blue-600 focus:ring-blue-500"
+                      className="mr-2 rounded text-blue-600"
                     />
                     <span className="text-sm font-medium text-gray-700">
                       Include Call-to-Action
@@ -289,20 +329,20 @@ export default function PlaygroundPage() {
                 <div>
                   <label
                     htmlFor="formality"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
                     Formality Level
                   </label>
                   <select
                     id="formality"
-                    value={guardrails.formalityLevel}
+                    value={emailConfig.formalityLevel}
                     onChange={(e) =>
-                      setGuardrails({
-                        ...guardrails,
+                      setEmailConfig({
+                        ...emailConfig,
                         formalityLevel: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 text-sm"
                   >
                     <option value="casual">Casual</option>
                     <option value="balanced">Balanced</option>
@@ -313,32 +353,181 @@ export default function PlaygroundPage() {
                 <div>
                   <label
                     htmlFor="brandVoice"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
                     Brand Voice (Optional)
                   </label>
                   <input
                     type="text"
                     id="brandVoice"
-                    value={guardrails.brandVoice}
+                    value={emailConfig.brandVoice}
                     onChange={(e) =>
-                      setGuardrails({
-                        ...guardrails,
+                      setEmailConfig({
+                        ...emailConfig,
                         brandVoice: e.target.value,
                       })
                     }
                     placeholder="e.g., innovative, customer-focused"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 text-sm"
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg shadow-sm p-6 border-2 border-purple-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Advanced Guardrails
+                  </h2>
+                  <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded">
+                    Experimental
+                  </span>
+                </div>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={guardrailsEnabled}
+                    onChange={(e) => setGuardrailsEnabled(e.target.checked)}
+                    className="mr-2 rounded text-purple-600"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Enable
+                  </span>
+                </label>
+              </div>
+
+              {guardrailsEnabled && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                      OpenAI Moderation
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.keys(guardrailsConfig.enabledCategories).map(
+                        (category) => (
+                          <div key={category}>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    guardrailsConfig.enabledCategories[
+                                      category as keyof typeof guardrailsConfig.enabledCategories
+                                    ]
+                                  }
+                                  onChange={(e) =>
+                                    setGuardrailsConfig({
+                                      ...guardrailsConfig,
+                                      enabledCategories: {
+                                        ...guardrailsConfig.enabledCategories,
+                                        [category]: e.target.checked,
+                                      },
+                                    })
+                                  }
+                                  className="mr-2 rounded text-purple-600"
+                                />
+                                <span className="text-sm text-gray-700 capitalize">
+                                  {category.replace(/([A-Z])/g, " $1").trim()}
+                                </span>
+                              </label>
+                              <span className="text-xs text-gray-500">
+                                {(
+                                  guardrailsConfig.thresholds[
+                                    category as keyof typeof guardrailsConfig.thresholds
+                                  ] * 100
+                                ).toFixed(0)}
+                                %
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={
+                                guardrailsConfig.thresholds[
+                                  category as keyof typeof guardrailsConfig.thresholds
+                                ] * 100
+                              }
+                              onChange={(e) =>
+                                setGuardrailsConfig({
+                                  ...guardrailsConfig,
+                                  thresholds: {
+                                    ...guardrailsConfig.thresholds,
+                                    [category]: parseInt(e.target.value) / 100,
+                                  },
+                                })
+                              }
+                              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-purple-200 pt-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                      Custom Validators
+                    </h3>
+                    <div className="space-y-2">
+                      {Object.keys(guardrailsConfig.validators).map(
+                        (validator) => (
+                          <label key={validator} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={
+                                guardrailsConfig.validators[
+                                  validator as keyof typeof guardrailsConfig.validators
+                                ]
+                              }
+                              onChange={(e) =>
+                                setGuardrailsConfig({
+                                  ...guardrailsConfig,
+                                  validators: {
+                                    ...guardrailsConfig.validators,
+                                    [validator]: e.target.checked,
+                                  },
+                                })
+                              }
+                              className="mr-2 rounded text-purple-600"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {validator
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^check/, "")
+                                .trim()}
+                            </span>
+                          </label>
+                        ),
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-100 rounded-md p-3 mt-4">
+                    <p className="text-xs text-purple-800">
+                      <strong>Note:</strong> Guardrails filter both input
+                      descriptions and generated outputs. Content will be
+                      blocked if it violates any enabled rules.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!guardrailsEnabled && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500">
+                    Enable guardrails to experiment with content filtering
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {showCopyToast && (
-        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg animate-fade-in">
           Copied to clipboard!
         </div>
       )}
