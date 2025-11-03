@@ -24,6 +24,13 @@ export async function POST(req: NextRequest) {
     const body: GenerateRequest = await req.json();
     const { userInput, emailConfig, guardrailsConfig } = body;
 
+    const debugInfo: any = {
+      inputModeration: null,
+      outputModeration: null,
+      inputValidation: null,
+      outputValidation: null,
+    };
+
     if (!userInput || userInput.trim().length === 0) {
       return NextResponse.json(
         { error: 'Email description is required' },
@@ -41,6 +48,8 @@ export async function POST(req: NextRequest) {
     if (guardrailsConfig) {
       try {
         const inputModeration = await moderateContent(userInput, guardrailsConfig);
+        debugInfo.inputModeration = inputModeration;
+
         if (inputModeration.flagged) {
           return NextResponse.json(
             {
@@ -58,12 +67,15 @@ export async function POST(req: NextRequest) {
           guardrailsConfig.validators,
           'input'
         );
+        debugInfo.inputValidation = inputValidation;
+
         if (!inputValidation.valid) {
           return NextResponse.json(
             {
               error: 'Validation Failed',
               message: 'Your input violates content policies.',
               violations: inputValidation.violations,
+              details: inputValidation.details,
               stage: 'input',
             },
             { status: 400 }
@@ -99,6 +111,8 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
     if (guardrailsConfig) {
       try {
         const outputModeration = await moderateContent(text, guardrailsConfig);
+        debugInfo.outputModeration = outputModeration;
+
         if (outputModeration.flagged) {
           return NextResponse.json(
             {
@@ -116,12 +130,15 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
           guardrailsConfig.validators,
           'output'
         );
+        debugInfo.outputValidation = outputValidation;
+
         if (!outputValidation.valid) {
           return NextResponse.json(
             {
               error: 'Generated Content Validation Failed',
               message: 'The generated email does not meet quality standards.',
               violations: outputValidation.violations,
+              details: outputValidation.details,
               stage: 'output',
             },
             { status: 400 }
@@ -135,6 +152,13 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
     return NextResponse.json({
       generatedEmail: text,
       guardrailsPassed: true,
+      debugInfo: guardrailsConfig ? {
+        inputScores: debugInfo.inputModeration?.category_scores,
+        outputScores: debugInfo.outputModeration?.category_scores,
+        inputFlagged: debugInfo.inputModeration?.flagged,
+        outputFlagged: debugInfo.outputModeration?.flagged,
+        allChecksPassed: true,
+      } : null,
     });
   } catch (error: any) {
     console.error('Error generating email:', error);

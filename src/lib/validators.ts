@@ -143,7 +143,7 @@ export function validateContent(
     }
   }
 
-  if (config.checkLength) {
+  if (config.checkLength && context === 'output') {
     const lengthCheck = checkLength(text);
     if (!lengthCheck.valid) {
       violations.push(

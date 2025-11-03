@@ -11,6 +11,57 @@ interface EmailConfig {
   brandVoice: string;
 }
 
+const MODERATION_DESCRIPTIONS: Record<string, { title: string; description: string }> = {
+  hate: {
+    title: "Hate Speech",
+    description: "Detects content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste."
+  },
+  harassment: {
+    title: "Harassment",
+    description: "Identifies content that expresses, incites, or promotes harassing language towards any target, including threats, intimidation, or bullying."
+  },
+  selfHarm: {
+    title: "Self-Harm",
+    description: "Catches content that promotes, encourages, or depicts acts of self-harm (suicide, cutting, eating disorders)."
+  },
+  sexual: {
+    title: "Sexual Content",
+    description: "Flags content meant to arouse sexual excitement, or that describes sexual activity in explicit detail."
+  },
+  violence: {
+    title: "Violence",
+    description: "Detects content that depicts death, violence, or physical injury in graphic detail, or promotes/glorifies violence."
+  }
+};
+
+const VALIDATOR_DESCRIPTIONS: Record<string, { title: string; description: string; checks: string[] }> = {
+  checkProfanity: {
+    title: "Profanity Filter",
+    description: "Scans for common profane and offensive words",
+    checks: ["Detects swear words and explicit language", "Catches variations and common misspellings"]
+  },
+  checkPII: {
+    title: "PII Detection",
+    description: "Identifies personally identifiable information that shouldn't be in emails",
+    checks: ["Email addresses", "Phone numbers (xxx-xxx-xxxx)", "Social security numbers", "Credit card numbers", "Street addresses"]
+  },
+  checkStructure: {
+    title: "Email Structure",
+    description: "Ensures generated emails follow professional format (OUTPUT ONLY)",
+    checks: ["Has proper greeting (Dear, Hello, Hi)", "Includes professional closing (Sincerely, Regards)", "Contains meaningful body content (20+ words)", "Has appropriate salutation"]
+  },
+  checkLength: {
+    title: "Length Validation",
+    description: "Enforces reasonable email length (OUTPUT ONLY)",
+    checks: ["Minimum 20 words", "Maximum 500 words", "Prevents too-short or too-long emails", "Does not apply to your input description"]
+  },
+  customRules: {
+    title: "Custom Business Rules",
+    description: "Additional business-specific content policies",
+    checks: ["Blocks spam-like language (URGENT, ACT NOW)", "Flags suspicious financial claims", "Detects excessive capitals (>30% of text)", "Limits exclamation marks (max 5)"]
+  }
+};
+
 export default function PlaygroundPage() {
   const [userInput, setUserInput] = useState("");
   const [emailConfig, setEmailConfig] = useState<EmailConfig>({
@@ -50,6 +101,8 @@ export default function PlaygroundPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [showDebugPanel, setShowDebugPanel] = useState(true);
 
   const handleGenerate = async () => {
     if (!userInput.trim()) {
@@ -63,6 +116,7 @@ export default function PlaygroundPage() {
     setIsLoading(true);
     setError(null);
     setGeneratedEmail("");
+    setDebugInfo(null);
 
     try {
       const response = await fetch("/api/generate", {
@@ -81,10 +135,12 @@ export default function PlaygroundPage() {
 
       if (!response.ok) {
         setError(data);
+        setDebugInfo(data.moderationResult || data);
         return;
       }
 
       setGeneratedEmail(data.generatedEmail);
+      setDebugInfo(data.debugInfo);
     } catch (err: any) {
       setError({
         error: "Network Error",
@@ -140,6 +196,16 @@ export default function PlaygroundPage() {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
               />
+              {userInput.trim() && userInput.trim().split(/\s+/).length < 5 && (
+                <div className="mt-2 flex items-start gap-2 p-2 bg-blue-50 rounded-md">
+                  <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-xs text-blue-700">
+                    <strong>Tip:</strong> More detailed descriptions often produce better results. Try adding context like tone, audience, or key points to include.
+                  </p>
+                </div>
+              )}
             </div>
 
             <button
@@ -240,6 +306,153 @@ export default function PlaygroundPage() {
                 </div>
               )}
             </div>
+
+            {debugInfo && showDebugPanel && (
+              <div className="bg-white rounded-lg shadow-sm p-6 border-2 border-blue-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Debug Information
+                  </h2>
+                  <button
+                    onClick={() => setShowDebugPanel(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {debugInfo.allChecksPassed && (
+                  <div className="mb-4 bg-green-50 rounded-md p-3 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-green-800 font-medium">All guardrails passed!</p>
+                  </div>
+                )}
+
+                {(debugInfo.inputScores || debugInfo.category_scores) && (
+                  <div className="space-y-4">
+                    {debugInfo.inputScores && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                          Input Moderation Scores
+                        </h3>
+                        <div className="space-y-2 pl-4">
+                          {Object.entries(debugInfo.inputScores).map(([category, score]: [string, any]) => (
+                            <div key={category} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-600">{category}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-32 bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full ${score > 0.5 ? 'bg-red-500' : score > 0.3 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                    style={{ width: `${Math.min(score * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-mono text-gray-700 w-12 text-right">
+                                  {(score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {debugInfo.outputScores && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                          <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                          Output Moderation Scores
+                        </h3>
+                        <div className="space-y-2 pl-4">
+                          {Object.entries(debugInfo.outputScores).map(([category, score]: [string, any]) => (
+                            <div key={category} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-600">{category}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-32 bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full ${score > 0.5 ? 'bg-red-500' : score > 0.3 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                    style={{ width: `${Math.min(score * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-mono text-gray-700 w-12 text-right">
+                                  {(score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {debugInfo.category_scores && !debugInfo.inputScores && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Moderation Scores</h3>
+                        <div className="space-y-2">
+                          {Object.entries(debugInfo.category_scores).map(([category, score]: [string, any]) => (
+                            <div key={category} className="flex items-center justify-between">
+                              <span className="text-xs text-gray-600">{category}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-32 bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full ${score > 0.5 ? 'bg-red-500' : score > 0.3 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                                    style={{ width: `${Math.min(score * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-mono text-gray-700 w-12 text-right">
+                                  {(score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {debugInfo.violations && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Validation Violations</h3>
+                    <ul className="space-y-1">
+                      {debugInfo.violations.map((violation: string, index: number) => (
+                        <li key={index} className="text-xs text-red-600 flex items-start gap-2">
+                          <span className="text-red-500 mt-0.5">•</span>
+                          <span>{violation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {debugInfo.message && (
+                  <div className="mt-4 bg-blue-50 rounded-md p-3">
+                    <p className="text-xs text-blue-800">{debugInfo.message}</p>
+                  </div>
+                )}
+
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    <strong>How to read scores:</strong> Green (&lt;30%) = Safe, Yellow (30-50%) = Borderline, Red (&gt;50%) = Flagged
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!showDebugPanel && debugInfo && (
+              <button
+                onClick={() => setShowDebugPanel(true)}
+                className="w-full px-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Show Debug Information
+              </button>
+            )}
           </div>
 
           <div className="xl:col-span-5 space-y-6">
@@ -400,115 +613,158 @@ export default function PlaygroundPage() {
               {guardrailsEnabled && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                      OpenAI Moderation
-                    </h3>
-                    <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        OpenAI Moderation
+                      </h3>
+                      <span className="text-xs text-gray-500">Powered by OpenAI</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Uses OpenAI's moderation API to detect harmful content. Adjust thresholds (0-100%) to control sensitivity.
+                    </p>
+                    <div className="space-y-4">
                       {Object.keys(guardrailsConfig.enabledCategories).map(
-                        (category) => (
-                          <div key={category}>
-                            <div className="flex items-center justify-between mb-1">
-                              <label className="flex items-center">
+                        (category) => {
+                          const desc = MODERATION_DESCRIPTIONS[category];
+                          return (
+                            <div key={category} className="bg-white rounded-lg p-3 border border-purple-100">
+                              <div className="flex items-start justify-between mb-2">
+                                <label className="flex items-start flex-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      guardrailsConfig.enabledCategories[
+                                        category as keyof typeof guardrailsConfig.enabledCategories
+                                      ]
+                                    }
+                                    onChange={(e) =>
+                                      setGuardrailsConfig({
+                                        ...guardrailsConfig,
+                                        enabledCategories: {
+                                          ...guardrailsConfig.enabledCategories,
+                                          [category]: e.target.checked,
+                                        },
+                                      })
+                                    }
+                                    className="mr-2 mt-0.5 rounded text-purple-600"
+                                  />
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-medium text-gray-900">
+                                        {desc?.title || category}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                      {desc?.description}
+                                    </p>
+                                  </div>
+                                </label>
+                                <span className="text-xs font-medium text-purple-600 ml-2">
+                                  {(
+                                    guardrailsConfig.thresholds[
+                                      category as keyof typeof guardrailsConfig.thresholds
+                                    ] * 100
+                                  ).toFixed(0)}
+                                  %
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="text-xs text-gray-500">Low</span>
                                 <input
-                                  type="checkbox"
-                                  checked={
-                                    guardrailsConfig.enabledCategories[
-                                      category as keyof typeof guardrailsConfig.enabledCategories
-                                    ]
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={
+                                    guardrailsConfig.thresholds[
+                                      category as keyof typeof guardrailsConfig.thresholds
+                                    ] * 100
                                   }
                                   onChange={(e) =>
                                     setGuardrailsConfig({
                                       ...guardrailsConfig,
-                                      enabledCategories: {
-                                        ...guardrailsConfig.enabledCategories,
-                                        [category]: e.target.checked,
+                                      thresholds: {
+                                        ...guardrailsConfig.thresholds,
+                                        [category]: parseInt(e.target.value) / 100,
                                       },
                                     })
                                   }
-                                  className="mr-2 rounded text-purple-600"
+                                  className="flex-1 h-2 bg-gradient-to-r from-green-200 via-yellow-200 to-red-200 rounded-lg appearance-none cursor-pointer"
                                 />
-                                <span className="text-sm text-gray-700 capitalize">
-                                  {category.replace(/([A-Z])/g, " $1").trim()}
-                                </span>
-                              </label>
-                              <span className="text-xs text-gray-500">
-                                {(
-                                  guardrailsConfig.thresholds[
-                                    category as keyof typeof guardrailsConfig.thresholds
-                                  ] * 100
-                                ).toFixed(0)}
-                                %
-                              </span>
+                                <span className="text-xs text-gray-500">High</span>
+                              </div>
                             </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={
-                                guardrailsConfig.thresholds[
-                                  category as keyof typeof guardrailsConfig.thresholds
-                                ] * 100
-                              }
-                              onChange={(e) =>
-                                setGuardrailsConfig({
-                                  ...guardrailsConfig,
-                                  thresholds: {
-                                    ...guardrailsConfig.thresholds,
-                                    [category]: parseInt(e.target.value) / 100,
-                                  },
-                                })
-                              }
-                              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                          </div>
-                        ),
+                          );
+                        }
                       )}
                     </div>
                   </div>
 
                   <div className="border-t border-purple-200 pt-4">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                      Custom Validators
-                    </h3>
-                    <div className="space-y-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        Custom Validators
+                      </h3>
+                      <span className="text-xs text-gray-500">Business Rules</span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-4">
+                      Additional validation rules specific to email quality and compliance.
+                    </p>
+                    <div className="space-y-3">
                       {Object.keys(guardrailsConfig.validators).map(
-                        (validator) => (
-                          <label key={validator} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={
-                                guardrailsConfig.validators[
-                                  validator as keyof typeof guardrailsConfig.validators
-                                ]
-                              }
-                              onChange={(e) =>
-                                setGuardrailsConfig({
-                                  ...guardrailsConfig,
-                                  validators: {
-                                    ...guardrailsConfig.validators,
-                                    [validator]: e.target.checked,
-                                  },
-                                })
-                              }
-                              className="mr-2 rounded text-purple-600"
-                            />
-                            <span className="text-sm text-gray-700">
-                              {validator
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^check/, "")
-                                .trim()}
-                            </span>
-                          </label>
-                        ),
+                        (validator) => {
+                          const desc = VALIDATOR_DESCRIPTIONS[validator];
+                          return (
+                            <div key={validator} className="bg-white rounded-lg p-3 border border-purple-100">
+                              <label className="flex items-start">
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    guardrailsConfig.validators[
+                                      validator as keyof typeof guardrailsConfig.validators
+                                    ]
+                                  }
+                                  onChange={(e) =>
+                                    setGuardrailsConfig({
+                                      ...guardrailsConfig,
+                                      validators: {
+                                        ...guardrailsConfig.validators,
+                                        [validator]: e.target.checked,
+                                      },
+                                    })
+                                  }
+                                  className="mr-2 mt-0.5 rounded text-purple-600"
+                                />
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {desc?.title || validator}
+                                  </div>
+                                  <p className="text-xs text-gray-600 mt-1">
+                                    {desc?.description}
+                                  </p>
+                                  {desc?.checks && (
+                                    <ul className="mt-2 space-y-0.5">
+                                      {desc.checks.map((check, idx) => (
+                                        <li key={idx} className="text-xs text-gray-500 flex items-start gap-1">
+                                          <span className="text-purple-400 mt-0.5">▪</span>
+                                          <span>{check}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              </label>
+                            </div>
+                          );
+                        }
                       )}
                     </div>
                   </div>
 
                   <div className="bg-purple-100 rounded-md p-3 mt-4">
                     <p className="text-xs text-purple-800">
-                      <strong>Note:</strong> Guardrails filter both input
-                      descriptions and generated outputs. Content will be
-                      blocked if it violates any enabled rules.
+                      <strong>How it works:</strong> All validators check your input description for inappropriate content.
+                      Email Structure and Length Validation only check the generated output (marked as "OUTPUT ONLY").
+                      Your input can be brief—just a few words is fine!
                     </p>
                   </div>
                 </div>
