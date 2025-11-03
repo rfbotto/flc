@@ -1,3 +1,5 @@
+'use client';
+
 import dynamic from 'next/dynamic';
 import TremorBarChart from '../../components/charts/TremorBarChart';
 import TremorLineChart from '../../components/charts/TremorLineChart';
