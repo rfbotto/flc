@@ -70,27 +70,6 @@ const VALIDATOR_DESCRIPTIONS: Record<
       "Street addresses",
     ],
   },
-  checkStructure: {
-    title: "Email Structure",
-    description:
-      "Ensures generated emails follow professional format (OUTPUT ONLY)",
-    checks: [
-      "Has proper greeting (Dear, Hello, Hi)",
-      "Includes professional closing (Sincerely, Regards)",
-      "Contains meaningful body content (20+ words)",
-      "Has appropriate salutation",
-    ],
-  },
-  checkLength: {
-    title: "Length Validation",
-    description: "Enforces reasonable email length (OUTPUT ONLY)",
-    checks: [
-      "Minimum 20 words",
-      "Maximum 500 words",
-      "Prevents too-short or too-long emails",
-      "Does not apply to your input description",
-    ],
-  },
   customRules: {
     title: "Custom Business Rules",
     description: "Additional business-specific content policies",
@@ -98,7 +77,6 @@ const VALIDATOR_DESCRIPTIONS: Record<
       "Blocks spam-like language (URGENT, ACT NOW)",
       "Flags suspicious financial claims",
       "Detects excessive capitals (>30% of text)",
-      "Limits exclamation marks (max 5)",
     ],
   },
 };
@@ -142,8 +120,6 @@ export default function PlaygroundPage() {
     validators: {
       checkProfanity: true,
       checkPII: true,
-      checkStructure: true,
-      checkLength: true,
       customRules: true,
     },
   });
@@ -1422,9 +1398,7 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
                   <div className="bg-purple-100 rounded-md p-3 mt-4">
                     <p className="text-xs text-purple-800">
                       <strong>How it works:</strong> All validators check your
-                      input description for inappropriate content. Email
-                      Structure and Length Validation only check the generated
-                      output (marked as "OUTPUT ONLY"). Your input can be
+                      input description for inappropriate content. Your input can be
                       brief—just a few words is fine!
                     </p>
                   </div>

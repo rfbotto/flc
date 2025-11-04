@@ -45,43 +45,6 @@ function checkPII(text: string): { hasPII: boolean; types: string[] } {
   };
 }
 
-function checkEmailStructure(text: string): { valid: boolean; issues: string[] } {
-  const issues: string[] = [];
-  const lowerText = text.toLowerCase();
-
-  const hasGreeting = /^(dear|hello|hi|hey|greetings|good morning|good afternoon)/i.test(text.trim());
-  if (!hasGreeting) {
-    issues.push('Missing proper greeting');
-  }
-
-  const hasClosing = /(sincerely|regards|best|thanks|thank you|cheers|yours|respectfully)/i.test(text);
-  if (!hasClosing) {
-    issues.push('Missing proper closing');
-  }
-
-  const hasSalutation = /(sincerely|regards|best regards|warm regards|kind regards|thank you|thanks|cheers)/i.test(lowerText);
-  if (!hasSalutation) {
-    issues.push('Missing professional salutation');
-  }
-
-  const wordCount = text.split(/\s+/).length;
-  if (wordCount < 20) {
-    issues.push('Email is too short (less than 20 words)');
-  }
-
-  return {
-    valid: issues.length === 0,
-    issues,
-  };
-}
-
-function checkLength(text: string, minWords: number = 20, maxWords: number = 500): { valid: boolean; wordCount: number } {
-  const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
-  return {
-    valid: wordCount >= minWords && wordCount <= maxWords,
-    wordCount,
-  };
-}
 
 function checkCustomRules(text: string): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
@@ -98,11 +61,6 @@ function checkCustomRules(text: string): { valid: boolean; violations: string[] 
   const totalLetters = (text.match(/[a-zA-Z]/g) || []).length;
   if (totalLetters > 0 && capsCount / totalLetters > 0.3) {
     violations.push('Excessive use of capital letters');
-  }
-
-  const exclamationCount = (text.match(/!/g) || []).length;
-  if (exclamationCount > 5) {
-    violations.push('Excessive use of exclamation marks');
   }
 
   return {
@@ -132,24 +90,6 @@ export function validateContent(
     if (piiCheck.hasPII) {
       violations.push(`Contains PII (${piiCheck.types.join(', ')})`);
       details.pii = piiCheck.types;
-    }
-  }
-
-  if (config.checkStructure && context === 'output') {
-    const structureCheck = checkEmailStructure(text);
-    if (!structureCheck.valid) {
-      violations.push(...structureCheck.issues);
-      details.structure = structureCheck.issues;
-    }
-  }
-
-  if (config.checkLength && context === 'output') {
-    const lengthCheck = checkLength(text);
-    if (!lengthCheck.valid) {
-      violations.push(
-        `Email length is ${lengthCheck.wordCount} words (should be between 20-500 words)`
-      );
-      details.wordCount = lengthCheck.wordCount;
     }
   }
 

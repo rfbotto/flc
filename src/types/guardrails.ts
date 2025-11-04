@@ -53,8 +53,6 @@ export interface ModerationConfig {
 export interface CustomValidatorsConfig {
   checkProfanity: boolean;
   checkPII: boolean;
-  checkStructure: boolean;
-  checkLength: boolean;
   customRules: boolean;
 }
 
