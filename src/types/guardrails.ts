@@ -75,3 +75,33 @@ export interface GuardrailsResponse {
   validationErrors: string[];
   metadata?: Record<string, any>;
 }
+
+export interface OpenAIGuardrailConfig {
+  entities?: string[];
+  categories?: string[];
+  confidence_threshold?: number;
+  model?: string;
+  system_prompt_details?: string;
+  [key: string]: any;
+}
+
+export interface OpenAIGuardrail {
+  name: string;
+  config: OpenAIGuardrailConfig;
+}
+
+export interface OpenAIGuardrailSection {
+  version: number;
+  guardrails: OpenAIGuardrail[];
+}
+
+export interface OpenAIGuardrailsFormat {
+  version: number;
+  pre_flight?: OpenAIGuardrailSection;
+  input?: OpenAIGuardrailSection;
+  output?: OpenAIGuardrailSection;
+}
+
+export interface ExtendedGuardrailsConfig extends GuardrailsConfig {
+  customPolicies?: OpenAIGuardrailsFormat;
+}

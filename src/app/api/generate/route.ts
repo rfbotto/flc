@@ -3,7 +3,8 @@ import { openai } from '@ai-sdk/openai';
 import { NextRequest, NextResponse } from 'next/server';
 import { moderateContent } from '@/lib/moderation';
 import { validateContent } from '@/lib/validators';
-import type { GuardrailsConfig } from '@/types/guardrails';
+import { validateCustomGuardrails } from '@/lib/custom-guardrails';
+import type { GuardrailsConfig, OpenAIGuardrailsFormat } from '@/types/guardrails';
 
 interface EmailGenerationConfig {
   tone: string;
@@ -17,18 +18,23 @@ interface GenerateRequest {
   userInput: string;
   emailConfig: EmailGenerationConfig;
   guardrailsConfig?: GuardrailsConfig;
+  context?: string;
+  customSystemPrompt?: string;
+  customGuardrails?: OpenAIGuardrailsFormat;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body: GenerateRequest = await req.json();
-    const { userInput, emailConfig, guardrailsConfig } = body;
+    const { userInput, emailConfig, guardrailsConfig, context, customSystemPrompt, customGuardrails } = body;
 
     const debugInfo: any = {
       inputModeration: null,
       outputModeration: null,
       inputValidation: null,
       outputValidation: null,
+      customGuardrailsInput: null,
+      customGuardrailsOutput: null,
     };
 
     if (!userInput || userInput.trim().length === 0) {
@@ -81,6 +87,28 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
+
+        if (customGuardrails) {
+          const customGuardrailsValidation = validateCustomGuardrails(
+            userInput,
+            customGuardrails,
+            'input'
+          );
+          debugInfo.customGuardrailsInput = customGuardrailsValidation;
+
+          if (!customGuardrailsValidation.valid) {
+            return NextResponse.json(
+              {
+                error: 'Custom Guardrails Failed',
+                message: 'Your input violates custom guardrail policies.',
+                violations: customGuardrailsValidation.violations,
+                details: customGuardrailsValidation.details,
+                stage: 'input',
+              },
+              { status: 400 }
+            );
+          }
+        }
       } catch (moderationError) {
         console.error('Moderation error:', moderationError);
       }
@@ -92,7 +120,10 @@ export async function POST(req: NextRequest) {
       long: 'approximately 300 words',
     };
 
-    const systemPrompt = `You are a professional email writer. Generate an email based on the user's description with these specifications:
+    let defaultSystemPrompt = 'You are a helpful AI assistant that generates professional email content based on user descriptions.';
+
+    if (emailConfig) {
+      defaultSystemPrompt = `You are a professional email writer. Generate an email based on the user's description with these specifications:
 - Tone: ${emailConfig.tone}
 - Length: ${lengthGuidelines[emailConfig.length] || 'medium length'}
 - Formality: ${emailConfig.formalityLevel}
@@ -100,11 +131,19 @@ ${emailConfig.includeCallToAction ? '- Include a clear call-to-action at the end
 ${emailConfig.brandVoice ? `- Brand voice: ${emailConfig.brandVoice}` : ''}
 
 Create a complete, ready-to-send email with proper greeting, body, and signature. Do not include a subject line. Format the email professionally.`;
+    }
+
+    const systemPrompt = customSystemPrompt || defaultSystemPrompt;
+
+    const defaultContext = 'You are generating content for a professional business environment.';
+    const contextPrefix = context || defaultContext;
+
+    const finalPrompt = `${contextPrefix}\n\n${userInput}`;
 
     const { text } = await generateText({
       model: openai('gpt-4o-mini'),
       system: systemPrompt,
-      prompt: userInput,
+      prompt: finalPrompt,
       temperature: 0.7,
     });
 
@@ -143,6 +182,28 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
             },
             { status: 400 }
           );
+        }
+
+        if (customGuardrails) {
+          const customGuardrailsValidation = validateCustomGuardrails(
+            text,
+            customGuardrails,
+            'output'
+          );
+          debugInfo.customGuardrailsOutput = customGuardrailsValidation;
+
+          if (!customGuardrailsValidation.valid) {
+            return NextResponse.json(
+              {
+                error: 'Custom Guardrails Failed',
+                message: 'The generated content violates custom guardrail policies.',
+                violations: customGuardrailsValidation.violations,
+                details: customGuardrailsValidation.details,
+                stage: 'output',
+              },
+              { status: 400 }
+            );
+          }
         }
       } catch (moderationError) {
         console.error('Output moderation error:', moderationError);
