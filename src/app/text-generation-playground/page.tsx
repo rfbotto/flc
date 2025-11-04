@@ -875,6 +875,78 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
                   </div>
                 )}
 
+                {(debugInfo.customGuardrailsInput || debugInfo.customGuardrailsOutput) && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                      Custom Guardrails Execution
+                    </h3>
+
+                    {debugInfo.customGuardrailsInput?.details?.executedGuardrails && (
+                      <div className="mb-3">
+                        <h4 className="text-xs font-semibold text-gray-600 mb-2">Input Guardrails:</h4>
+                        <div className="space-y-2">
+                          {debugInfo.customGuardrailsInput.details.executedGuardrails.map((guardrailName: string) => {
+                            const result = debugInfo.customGuardrailsInput.details.guardrailResults[guardrailName];
+                            return (
+                              <div key={guardrailName} className="bg-gray-50 rounded p-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className={`w-2 h-2 rounded-full ${result.passed ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                  <span className="font-medium">{guardrailName}</span>
+                                  <span className={`px-2 py-0.5 text-xs rounded ${result.passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {result.passed ? 'PASSED' : 'FAILED'}
+                                  </span>
+                                </div>
+                                {result.violations && result.violations.length > 0 && (
+                                  <div className="mt-1 ml-4 text-red-600">
+                                    {result.violations.map((v: string, i: number) => (
+                                      <div key={i}>• {v}</div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {debugInfo.customGuardrailsOutput?.details?.executedGuardrails && (
+                      <div>
+                        <h4 className="text-xs font-semibold text-gray-600 mb-2">Output Guardrails:</h4>
+                        <div className="space-y-2">
+                          {debugInfo.customGuardrailsOutput.details.executedGuardrails.map((guardrailName: string) => {
+                            const result = debugInfo.customGuardrailsOutput.details.guardrailResults[guardrailName];
+                            return (
+                              <div key={guardrailName} className="bg-gray-50 rounded p-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className={`w-2 h-2 rounded-full ${result.passed ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                  <span className="font-medium">{guardrailName}</span>
+                                  <span className={`px-2 py-0.5 text-xs rounded ${result.passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {result.passed ? 'PASSED' : 'FAILED'}
+                                  </span>
+                                </div>
+                                {result.violations && result.violations.length > 0 && (
+                                  <div className="mt-1 ml-4 text-red-600">
+                                    {result.violations.map((v: string, i: number) => (
+                                      <div key={i}>• {v}</div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-3 bg-yellow-50 rounded-md p-2">
+                      <p className="text-xs text-yellow-800">
+                        <strong>Note:</strong> Only PII Detection is fully implemented. Other guardrails (Moderation, Jailbreak, Off-Topic, Custom Prompt Check) are placeholders that always pass. Check console logs for execution details.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
                     <strong>How to read scores:</strong> Green (&lt;30%) = Safe,
