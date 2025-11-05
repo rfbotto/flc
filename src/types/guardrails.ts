@@ -62,6 +62,13 @@ export interface ValidationResult {
   details?: Record<string, any>;
 }
 
+export interface GroundednessResult {
+  grounded: boolean;
+  confidence_score: number;
+  unsupported_claims: string[];
+  context_used?: string[];
+}
+
 export interface GuardrailsConfig extends ModerationConfig {
   validators: CustomValidatorsConfig;
 }
@@ -74,12 +81,20 @@ export interface GuardrailsResponse {
   metadata?: Record<string, any>;
 }
 
+export interface GroundednessConfig {
+  confidence_threshold?: number;
+  require_citations?: boolean;
+  context_sources?: string[];
+  check_claims?: boolean;
+}
+
 export interface OpenAIGuardrailConfig {
   entities?: string[];
   categories?: string[];
   confidence_threshold?: number;
   model?: string;
   system_prompt_details?: string;
+  groundedness?: GroundednessConfig;
   [key: string]: any;
 }
 

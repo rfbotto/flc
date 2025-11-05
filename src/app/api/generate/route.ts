@@ -21,12 +21,13 @@ interface GenerateRequest {
   context?: string;
   customSystemPrompt?: string;
   customGuardrails?: OpenAIGuardrailsFormat;
+  contextSources?: string[];
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body: GenerateRequest = await req.json();
-    const { userInput, emailConfig, guardrailsConfig, context, customSystemPrompt, customGuardrails } = body;
+    const { userInput, emailConfig, guardrailsConfig, context, customSystemPrompt, customGuardrails, contextSources } = body;
 
     const debugInfo: any = {
       inputModeration: null,
@@ -89,10 +90,11 @@ export async function POST(req: NextRequest) {
         }
 
         if (customGuardrails) {
-          const customGuardrailsValidation = validateCustomGuardrails(
+          const customGuardrailsValidation = await validateCustomGuardrails(
             userInput,
             customGuardrails,
-            'input'
+            'input',
+            contextSources
           );
           debugInfo.customGuardrailsInput = customGuardrailsValidation;
 
@@ -185,10 +187,11 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
         }
 
         if (customGuardrails) {
-          const customGuardrailsValidation = validateCustomGuardrails(
+          const customGuardrailsValidation = await validateCustomGuardrails(
             text,
             customGuardrails,
-            'output'
+            'output',
+            contextSources
           );
           debugInfo.customGuardrailsOutput = customGuardrailsValidation;
 

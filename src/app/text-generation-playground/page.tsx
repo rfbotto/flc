@@ -87,6 +87,8 @@ const DEFAULT_CONTEXT =
 export default function PlaygroundPage() {
   const [userInput, setUserInput] = useState("");
   const [context, setContext] = useState("");
+  const [contextSources, setContextSources] = useState<string[]>([]);
+  const [contextSourceInput, setContextSourceInput] = useState("");
   const [customSystemPrompt, setCustomSystemPrompt] = useState("");
   const [useCustomSystemPrompt, setUseCustomSystemPrompt] = useState(false);
   const [customGuardrailsJSON, setCustomGuardrailsJSON] = useState("");
@@ -189,6 +191,7 @@ export default function PlaygroundPage() {
               ? customSystemPrompt
               : undefined,
           customGuardrails,
+          contextSources: contextSources.length > 0 ? contextSources : undefined,
         }),
       });
 
@@ -329,6 +332,69 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
                 Provide additional background information or context for the AI
                 to consider (e.g., company info, previous email thread, or
                 specific requirements).
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <label
+                htmlFor="contextSources"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Context Sources for Groundedness Checking
+              </label>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="contextSources"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    placeholder="Enter source material or facts to verify against..."
+                    value={contextSourceInput}
+                    onChange={(e) => setContextSourceInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && contextSourceInput.trim()) {
+                        setContextSources([...contextSources, contextSourceInput.trim()]);
+                        setContextSourceInput("");
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (contextSourceInput.trim()) {
+                        setContextSources([...contextSources, contextSourceInput.trim()]);
+                        setContextSourceInput("");
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    Add
+                  </button>
+                </div>
+                {contextSources.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {contextSources.map((source, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                      >
+                        <span className="max-w-xs truncate">{source}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setContextSources(contextSources.filter((_, i) => i !== index));
+                          }}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Add source material that the AI output should be grounded in. The groundedness guardrail will verify that generated content doesn&apos;t hallucinate facts not present in these sources.
               </p>
             </div>
 

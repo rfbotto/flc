@@ -1,10 +1,12 @@
 import type { OpenAIGuardrailsFormat, OpenAIGuardrail, ValidationResult } from '@/types/guardrails';
+import { checkGroundedness } from './groundedness';
 
 /**
  * Custom Guardrails Validator for OpenAI Guardrails Format
  *
  * IMPLEMENTATION STATUS:
  * ✅ PII Detection - FULLY IMPLEMENTED (regex-based entity detection)
+ * ✅ Groundedness/Hallucination Detection - FULLY IMPLEMENTED (LLM-based verification)
  * ⚠️  Moderation - PLACEHOLDER (returns valid, needs OpenAI API integration)
  * ⚠️  Jailbreak Detection - PLACEHOLDER (returns valid, needs LLM-based detection)
  * ⚠️  Off-Topic Prompts - PLACEHOLDER (returns valid, needs LLM-based detection)
@@ -91,11 +93,63 @@ function validateCustomPromptCheck(text: string, guardrail: OpenAIGuardrail): { 
   return { valid: true, violations: [] };
 }
 
-function validateGuardrail(text: string, guardrail: OpenAIGuardrail): { valid: boolean; violations: string[] } {
+async function validateGroundednessGuardrail(
+  text: string,
+  guardrail: OpenAIGuardrail,
+  contextSources?: string[]
+): Promise<{ valid: boolean; violations: string[] }> {
+  const { groundedness } = guardrail.config;
+
+  if (!groundedness || !contextSources || contextSources.length === 0) {
+    console.log(`[Custom Guardrails] Groundedness check "${guardrail.name}" skipped - no context provided`);
+    return { valid: true, violations: [] };
+  }
+
+  console.log(`[Custom Guardrails] Groundedness check "${guardrail.name}" executed (FULLY IMPLEMENTED)`);
+  console.log(`[Custom Guardrails] Config:`, groundedness);
+  console.log(`[Custom Guardrails] Context sources:`, contextSources.length);
+
+  try {
+    const result = await checkGroundedness({
+      text,
+      context: contextSources,
+      confidenceThreshold: groundedness.confidence_threshold || 0.7,
+      requireCitations: groundedness.require_citations || false,
+      model: guardrail.config.model || 'gpt-4o-mini',
+    });
+
+    if (!result.grounded) {
+      console.log(`[Custom Guardrails] HALLUCINATION DETECTED:`, result.unsupported_claims);
+      const violations = result.unsupported_claims.map(claim =>
+        `[${guardrail.name}] Unsupported claim: ${claim} (confidence: ${result.confidence_score.toFixed(2)})`
+      );
+      return { valid: false, violations };
+    }
+
+    console.log(`[Custom Guardrails] Groundedness check PASSED (confidence: ${result.confidence_score.toFixed(2)})`);
+    return { valid: true, violations: [] };
+  } catch (error) {
+    console.error(`[Custom Guardrails] Groundedness check error:`, error);
+    return {
+      valid: false,
+      violations: [`[${guardrail.name}] Error during groundedness check: ${error instanceof Error ? error.message : 'Unknown error'}`],
+    };
+  }
+}
+
+async function validateGuardrail(
+  text: string,
+  guardrail: OpenAIGuardrail,
+  contextSources?: string[]
+): Promise<{ valid: boolean; violations: string[] }> {
   const guardrailName = guardrail.name.toLowerCase();
 
   if (guardrailName.includes('pii')) {
     return validatePIIGuardrail(text, guardrail);
+  }
+
+  if (guardrailName.includes('groundedness') || guardrailName.includes('hallucination')) {
+    return validateGroundednessGuardrail(text, guardrail, contextSources);
   }
 
   if (guardrailName.includes('moderation')) {
@@ -109,11 +163,12 @@ function validateGuardrail(text: string, guardrail: OpenAIGuardrail): { valid: b
   return { valid: true, violations: [] };
 }
 
-export function validateCustomGuardrails(
+export async function validateCustomGuardrails(
   text: string,
   guardrailsFormat: OpenAIGuardrailsFormat,
-  context: 'input' | 'output'
-): ValidationResult {
+  context: 'input' | 'output',
+  contextSources?: string[]
+): Promise<ValidationResult> {
   const violations: string[] = [];
   const details: Record<string, any> = {
     executedGuardrails: [],
@@ -123,7 +178,7 @@ export function validateCustomGuardrails(
   if (guardrailsFormat.pre_flight && guardrailsFormat.pre_flight.guardrails) {
     for (const guardrail of guardrailsFormat.pre_flight.guardrails) {
       details.executedGuardrails.push(`pre_flight:${guardrail.name}`);
-      const result = validateGuardrail(text, guardrail);
+      const result = await validateGuardrail(text, guardrail, contextSources);
 
       details.guardrailResults[`pre_flight:${guardrail.name}`] = {
         passed: result.valid,
@@ -143,7 +198,7 @@ export function validateCustomGuardrails(
   if (contextSection && contextSection.guardrails) {
     for (const guardrail of contextSection.guardrails) {
       details.executedGuardrails.push(`${context}:${guardrail.name}`);
-      const result = validateGuardrail(text, guardrail);
+      const result = await validateGuardrail(text, guardrail, contextSources);
 
       details.guardrailResults[`${context}:${guardrail.name}`] = {
         passed: result.valid,
@@ -221,6 +276,17 @@ export const DEFAULT_CUSTOM_GUARDRAILS_EXAMPLE = JSON.stringify({
     "version": 1,
     "guardrails": [
       {
+        "name": "Input Groundedness Check",
+        "config": {
+          "model": "gpt-4o-mini",
+          "groundedness": {
+            "confidence_threshold": 0.7,
+            "require_citations": false,
+            "check_claims": true
+          }
+        }
+      },
+      {
         "name": "Custom Prompt Check",
         "config": {
           "confidence_threshold": 0.7,
@@ -232,6 +298,18 @@ export const DEFAULT_CUSTOM_GUARDRAILS_EXAMPLE = JSON.stringify({
   },
   "output": {
     "version": 1,
-    "guardrails": []
+    "guardrails": [
+      {
+        "name": "Output Hallucination Detection",
+        "config": {
+          "model": "gpt-4o-mini",
+          "groundedness": {
+            "confidence_threshold": 0.8,
+            "require_citations": true,
+            "check_claims": true
+          }
+        }
+      }
+    ]
   }
 }, null, 2);
