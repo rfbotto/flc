@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { moderateContent } from '@/lib/moderation';
 import { validateContent } from '@/lib/validators';
 import { validateCustomGuardrails } from '@/lib/custom-guardrails';
+import { detectUrls, fetchMultipleUrls, enrichContextWithUrls, type UrlFetchResult } from '@/lib/url-fetcher';
 import type { GuardrailsConfig, OpenAIGuardrailsFormat } from '@/types/guardrails';
 
 interface EmailGenerationConfig {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       outputValidation: null,
       customGuardrailsInput: null,
       customGuardrailsOutput: null,
+      urlFetchResults: null,
     };
 
     if (!userInput || userInput.trim().length === 0) {
@@ -50,6 +52,21 @@ export async function POST(req: NextRequest) {
         { error: 'OpenAI API key is not configured' },
         { status: 500 }
       );
+    }
+
+    let enrichedContext = context;
+    if (context) {
+      const detectedUrls = detectUrls(context);
+      if (detectedUrls.length > 0) {
+        console.log(`Detected ${detectedUrls.length} URLs in context, fetching content...`);
+        const urlFetchResults = await fetchMultipleUrls(detectedUrls);
+        debugInfo.urlFetchResults = urlFetchResults;
+
+        const successfulFetches = urlFetchResults.filter(r => r.success);
+        console.log(`Successfully fetched ${successfulFetches.length}/${detectedUrls.length} URLs`);
+
+        enrichedContext = enrichContextWithUrls(context, urlFetchResults);
+      }
     }
 
     if (guardrailsConfig) {
@@ -138,7 +155,7 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
     const systemPrompt = customSystemPrompt || defaultSystemPrompt;
 
     const defaultContext = 'You are generating content for a professional business environment.';
-    const contextPrefix = context || defaultContext;
+    const contextPrefix = enrichedContext || defaultContext;
 
     const finalPrompt = `${contextPrefix}\n\n${userInput}`;
 
@@ -222,7 +239,8 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
         inputFlagged: debugInfo.inputModeration?.flagged,
         outputFlagged: debugInfo.outputModeration?.flagged,
         allChecksPassed: true,
-      } : null,
+        urlFetchResults: debugInfo.urlFetchResults,
+      } : { urlFetchResults: debugInfo.urlFetchResults },
     });
   } catch (error: any) {
     console.error('Error generating email:', error);

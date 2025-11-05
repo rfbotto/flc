@@ -917,6 +917,57 @@ Create a complete, ready-to-send email with proper greeting, body, and signature
                   </div>
                 )}
 
+                {debugInfo.urlFetchResults && debugInfo.urlFetchResults.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      Web Content Fetched from URLs
+                    </h3>
+                    <div className="space-y-2">
+                      {debugInfo.urlFetchResults.map((result: any, index: number) => (
+                        <div key={index} className={`bg-gray-50 rounded p-3 text-xs border ${result.success ? 'border-green-200' : 'border-red-200'}`}>
+                          <div className="flex items-start gap-2 mb-2">
+                            <span className={`w-2 h-2 rounded-full mt-1 flex-shrink-0 ${result.success ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900 break-all">{result.url}</div>
+                              {result.title && (
+                                <div className="text-gray-600 mt-1">Title: {result.title}</div>
+                              )}
+                              {result.success && result.content && (
+                                <div className="mt-2">
+                                  <details>
+                                    <summary className="cursor-pointer text-blue-600 hover:text-blue-700">
+                                      View content ({result.content.length} chars)
+                                    </summary>
+                                    <div className="mt-2 p-2 bg-white rounded border border-gray-200 max-h-48 overflow-y-auto">
+                                      <pre className="whitespace-pre-wrap text-xs text-gray-700">
+                                        {result.content.substring(0, 1000)}{result.content.length > 1000 ? '...' : ''}
+                                      </pre>
+                                    </div>
+                                  </details>
+                                </div>
+                              )}
+                              {result.error && (
+                                <div className="mt-1 text-red-600">Error: {result.error}</div>
+                              )}
+                              <div className="mt-1 text-gray-500">
+                                Fetched at: {new Date(result.fetchedAt).toLocaleTimeString()}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 bg-blue-50 rounded-md p-2">
+                      <p className="text-xs text-blue-800">
+                        <strong>Note:</strong> URLs detected in the context field were automatically fetched and their content was added to the AI context for generation.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {(debugInfo.customGuardrailsInput || debugInfo.customGuardrailsOutput) && (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <h3 className="text-sm font-semibold text-gray-700 mb-3">
