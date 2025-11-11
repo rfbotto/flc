@@ -195,7 +195,22 @@ export default function PlaygroundPage() {
         }),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data;
+
+      try {
+        if (!responseText) {
+          throw new Error("Server returned empty response");
+        }
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Failed to parse response:", responseText);
+        setError({
+          error: "Parse Error",
+          message: `Received invalid response from server: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`,
+        });
+        return;
+      }
 
       if (!response.ok) {
         setError(data);

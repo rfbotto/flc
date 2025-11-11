@@ -1,5 +1,4 @@
 import { Readability } from '@mozilla/readability';
-import { JSDOM } from 'jsdom';
 
 export interface UrlFetchResult {
   url: string;
@@ -49,6 +48,20 @@ export async function fetchUrlContent(url: string): Promise<UrlFetchResult> {
     }
 
     const html = await response.text();
+
+    let JSDOM;
+    try {
+      const jsdomModule = await import('jsdom');
+      JSDOM = jsdomModule.JSDOM;
+    } catch (importError) {
+      return {
+        url,
+        error: 'Failed to load HTML parser module',
+        fetchedAt,
+        success: false,
+      };
+    }
+
     const dom = new JSDOM(html, { url });
     const reader = new Readability(dom.window.document);
     const article = reader.parse();

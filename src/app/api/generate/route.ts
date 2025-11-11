@@ -59,13 +59,23 @@ export async function POST(req: NextRequest) {
       const detectedUrls = detectUrls(context);
       if (detectedUrls.length > 0) {
         console.log(`Detected ${detectedUrls.length} URLs in context, fetching content...`);
-        const urlFetchResults = await fetchMultipleUrls(detectedUrls);
-        debugInfo.urlFetchResults = urlFetchResults;
+        try {
+          const urlFetchResults = await fetchMultipleUrls(detectedUrls);
+          debugInfo.urlFetchResults = urlFetchResults;
 
-        const successfulFetches = urlFetchResults.filter(r => r.success);
-        console.log(`Successfully fetched ${successfulFetches.length}/${detectedUrls.length} URLs`);
+          const successfulFetches = urlFetchResults.filter(r => r.success);
+          console.log(`Successfully fetched ${successfulFetches.length}/${detectedUrls.length} URLs`);
 
-        enrichedContext = enrichContextWithUrls(context, urlFetchResults);
+          enrichedContext = enrichContextWithUrls(context, urlFetchResults);
+        } catch (urlError) {
+          console.error('Error fetching URLs:', urlError);
+          debugInfo.urlFetchResults = detectedUrls.map(url => ({
+            url,
+            error: urlError instanceof Error ? urlError.message : 'Failed to fetch URL',
+            fetchedAt: new Date().toISOString(),
+            success: false,
+          }));
+        }
       }
     }
 
