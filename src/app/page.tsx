@@ -2,6 +2,11 @@ import Link from 'next/link'
 
 const projects = [
   {
+    title: 'React 19 Patterns',
+    description: 'Before/after comparisons of React 19 async features: Transitions, Form Actions, useOptimistic, use() hook, Activity, and ViewTransitions',
+    href: '/react-19-patterns',
+  },
+  {
     title: 'Loading Test',
     description: 'Demonstrates Next.js loading states, Suspense boundaries, and prefetching patterns',
     href: '/loading-test',
