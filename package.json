@@ -20,7 +20,9 @@
     "openai": "^6.7.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-syntax-highlighter": "^16.1.0"
+    "react-markdown": "^10.1.0",
+    "react-syntax-highlighter": "^16.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/jsdom": "^27.0.0",
